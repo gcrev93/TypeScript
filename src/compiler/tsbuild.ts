@@ -1300,7 +1300,7 @@ namespace ts {
             }
 
             if (reloadLevel === ConfigFileProgramReloadLevel.Full) {
-                watchConfigFile(state, project, projectPath);
+                watchConfigFile(state, project, projectPath, config);
                 watchWildCardDirectories(state, project, projectPath, config);
                 watchInputFiles(state, project, projectPath, config);
             }
@@ -1904,7 +1904,7 @@ namespace ts {
         reportErrorSummary(state, buildOrder);
     }
 
-    function watchConfigFile(state: SolutionBuilderState, resolved: ResolvedConfigFileName, resolvedPath: ResolvedConfigFilePath) {
+    function watchConfigFile(state: SolutionBuilderState, resolved: ResolvedConfigFileName, resolvedPath: ResolvedConfigFilePath, parsed: ParsedCommandLine | undefined) {
         if (!state.watch || state.allWatchedConfigFiles.has(resolvedPath)) return;
         state.allWatchedConfigFiles.set(resolvedPath, state.watchFile(
             state.hostWithWatch,
@@ -1913,6 +1913,7 @@ namespace ts {
                 invalidateProjectAndScheduleBuilds(state, resolvedPath, ConfigFileProgramReloadLevel.Full);
             },
             PollingInterval.High,
+            parsed?.options,
             WatchType.ConfigFile,
             resolved
         ));
@@ -1973,6 +1974,7 @@ namespace ts {
                     invalidateProjectAndScheduleBuilds(state, resolvedPath, ConfigFileProgramReloadLevel.Partial);
                 },
                 flags,
+                parsed.options,
                 WatchType.WildcardDirectory,
                 resolved
             )
@@ -1990,6 +1992,7 @@ namespace ts {
                     input,
                     () => invalidateProjectAndScheduleBuilds(state, resolvedPath, ConfigFileProgramReloadLevel.None),
                     PollingInterval.Low,
+                    parsed?.options,
                     path as Path,
                     WatchType.SourceFile,
                     resolved
@@ -2004,10 +2007,9 @@ namespace ts {
         state.watchAllProjectsPending = false;
         for (const resolved of getBuildOrderFromAnyBuildOrder(buildOrder)) {
             const resolvedPath = toResolvedConfigFilePath(state, resolved);
-            // Watch this file
-            watchConfigFile(state, resolved, resolvedPath);
-
             const cfg = parseConfigFile(state, resolved, resolvedPath);
+            // Watch this file
+            watchConfigFile(state, resolved, resolvedPath, cfg);
             if (cfg) {
                 // Update watchers for wildcard directories
                 watchWildCardDirectories(state, resolved, resolvedPath, cfg);
