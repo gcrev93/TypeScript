@@ -1818,6 +1818,7 @@ namespace ts.server {
                 project.stopWatchingWildCards();
             }
             else {
+                project.setCompilerOptions(compilerOptions);
                 project.enableLanguageService();
                 project.watchWildcards(createMapFromTemplate(parsedCommandLine.wildcardDirectories!)); // TODO: GH#18217
             }
