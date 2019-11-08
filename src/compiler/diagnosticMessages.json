@@ -4152,6 +4152,10 @@
         "category": "Message",
         "code": 6226
     },
+    "Delay and batch update child directory watches on platforms that don't support recursive watching natively.": {
+        "category": "Message",
+        "code": 6227
+    },
 
     "Projects to reference": {
         "category": "Message",

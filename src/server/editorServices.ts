@@ -578,7 +578,7 @@ namespace ts.server {
                 preferences: emptyOptions,
                 hostInfo: "Unknown host",
                 extraFileExtensions: [],
-                watchOptions: {},
+                watchOptions: { delayChildWatchDirectory: true },
             };
 
             this.documentRegistry = createDocumentRegistryInternal(this.host.useCaseSensitiveFileNames, this.currentDirectory, this);
@@ -2463,8 +2463,9 @@ namespace ts.server {
                 }
 
                 if (args.watchOptions) {
+                    const oldWatchOptions = this.hostConfiguration.watchOptions;
                     this.hostConfiguration.watchOptions = convertCompilerOptions(args.watchOptions);
-                    this.logger.info(`Host watch options changed to ${this.hostConfiguration.watchOptions}, it will be take effect for next watches.`);
+                    this.logger.info(`Host watch options changed to ${this.hostConfiguration.watchOptions} from ${oldWatchOptions}, it will be take effect for next watches.`);
                 }
             }
         }
